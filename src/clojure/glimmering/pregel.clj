@@ -16,22 +16,23 @@
       (doseq [message (:dst outgoing)]
         (.sendToDst ctx message)))))
 
-(defn pregel [graph init max-iterations vf sf mf]
+(defn pregel [init max-iterations vf sf mf graph]
   (let [dir (EdgeDirection/Either)
-        g (g/map-vertices graph (fn [vid attr]
-                                  (vf vid attr init)))]
+        g (g/map-vertices (fn [vid attr]
+                            (vf vid attr init))
+                          graph)]
     (loop [g g
-           messages (g/aggregate-messages g sf mf)
+           messages (g/aggregate-messages sf mf g)
            i 0]
       (if (and (> (.count messages) 0)
                (< i max-iterations))
-        (let [new-verts (.cache (g/inner-join (g/vertices g) messages vf))
+        (let [new-verts (.cache (g/inner-join vf messages (g/vertices g)))
               old-g g
-              g (.cache (g/outer-join-vertices g new-verts
-                                               (fn [vid old new-opt]
-                                                 ($ new-opt getOrElse ($/fn [] old)))))
+              g (.cache (g/outer-join-vertices (fn [vid old new-opt]
+                                                 ($ new-opt getOrElse ($/fn [] old)))
+                                               new-verts g))
               old-messages messages
-              messages (.cache (g/aggregate-messages g sf mf))]
+              messages (.cache (g/aggregate-messages sf mf g))]
           (println "Pregel iteration: " i "messages count: " (.count messages))
           (.unpersist old-messages false)
           (.unpersist new-verts false)

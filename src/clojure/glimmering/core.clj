@@ -25,26 +25,26 @@
 (defn vertices [graph]
   (.vertices graph))
 
-(defn map-vertices [graph f]
+(defn map-vertices [f graph]
   (.mapVertices graph
                 (new ScalaFunction2 f)
                 ($ ClassTag java.lang.Object)
                 nil))
 
-(defn inner-join [rdd other f]
+(defn inner-join [f other rdd]
   (.innerJoin rdd other
               (new ScalaFunction3 f)
               si/OBJECT-CLASS-TAG
               si/OBJECT-CLASS-TAG))
 
-(defn outer-join-vertices [graph vertices f]
+(defn outer-join-vertices [f vertices graph]
   (.outerJoinVertices graph vertices
                       (new ScalaFunction3 f)
                       si/OBJECT-CLASS-TAG
                       si/OBJECT-CLASS-TAG
                       nil))
 
-(defn aggregate-messages [graph send merge]
+(defn aggregate-messages [send merge graph]
   (.aggregateMessages graph
                       (new ScalaFunction1 send)
                       (new ScalaFunction2 merge)

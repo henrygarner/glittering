@@ -30,14 +30,14 @@
                                (conf/master "local[*]")
                                (conf/app-name "pregel-test"))
       (let [edges (spark/parallelize sc (concat clique1 clique2 [(g/edge 0 n 1)]))
-            labels (-> (g/graph-from-edges edges 1)
-                       (g/map-vertices (fn [vid attr] vid)) 
-                       (p/pregel init max vfn sfn mfn)
-                       (g/vertices)
-                       (spark/collect)
-                       (vec)
-                       (->> (untuple-all)
-                            (group-by second)))]
+            labels (->> (g/graph-from-edges edges 1)
+                        (g/map-vertices (fn [vid attr] vid)) 
+                        (p/pregel init max vfn sfn mfn)
+                        (g/vertices)
+                        (spark/collect)
+                        (vec)
+                        (untuple-all)
+                        (group-by second))]
         (testing
             "returns two cliques"
           (is (= 2 (-> labels keys count))))))))

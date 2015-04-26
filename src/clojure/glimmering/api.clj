@@ -70,40 +70,6 @@
               si/OBJECT-CLASS-TAG
               si/OBJECT-CLASS-TAG))
 
-(defn pregel [graph init max vf sf mf]
-  (println "PREGEL ##################")
-  (let [
-        dir (EdgeDirection/Either)
-        v (new glimmering.scalaInterop.ScalaFunction3 vf)
-        s (new sparkling.scalaInterop.ScalaFunction1 sf)
-        m (new glimmering.scalaInterop.ScalaFunction2 mf)
-        class-tag ($ ClassTag java.lang.Object)]
-    (.pregel (.ops graph) init max dir v s m class-tag)))
-
-
-(defn pregel-impl [graph init max-iterations vf sf mf]
-  (let [dir (EdgeDirection/Either)
-        g (map-vertices graph (fn [vid attr]
-                                (vf vid attr init)))]
-    (loop [g g
-           messages (aggregate-messages g sf mf)
-           i 0]
-      (if (and (> (.count messages) 0)
-               (< i max-iterations))
-        (let [new-verts (.cache (inner-join (vertices g) messages vf))
-              old-g g
-              g (.cache (outer-join-vertices g new-verts
-                                             (fn [vid old new-opt]
-                                               ($ new-opt getOrElse ($/fn [] old)))))
-              old-messages messages
-              messages (.cache (aggregate-messages g sf mf))]
-          (println "Pregel iteration: " i "messages count: " (.count messages))
-          (.unpersist old-messages false)
-          (.unpersist new-verts false)
-          (.unpersistVertices old-g false)
-          (.unpersist (edges old-g) false)
-          (recur g messages (inc i)))
-        g))))
 
 (defn page-rank [graph tol reset-prob]
   (.pageRank (.ops graph) tol reset-prob))

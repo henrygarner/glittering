@@ -78,7 +78,7 @@
           (glimmering/map-reduce-triplets send-message merge-message)
           (.first)))))
 
-(defn test-pregel []
+#_(defn test-pregel []
   (spark/with-context sc (-> (conf/spark-conf)
                              (conf/master "local[*]")
                              (conf/app-name "sparkling-test"))
@@ -93,7 +93,7 @@
           (.vertices)
           (spark/save-as-text-file "/tmp/vertices")))))
 
-(defn semi-clustering [graph]
+#_(defn semi-clustering [graph]
   (let [vfn (fn [vid attr message]
               (println "Vertex" vid attr message)
               (if (empty? message)
@@ -121,7 +121,7 @@
         #_(glimmering/map-vertices (fn [vid attr] vid))
         #_(glimmering/pregel init max vfn sfn mfn))))
 
-(defn test-connected-components [out]
+#_(defn test-connected-components [out]
   (spark/with-context sc (-> (conf/spark-conf)
                              (conf/master "local[*]")
                              (conf/app-name "sparkling-test"))

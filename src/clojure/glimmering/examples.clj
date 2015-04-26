@@ -1,5 +1,5 @@
-(ns shimmer.examples
-  (:require [shimmer.api :as shimmer]
+(ns glimmering.examples
+  (:require [glimmering.api :as glimmering]
             [sparkling.api :as spark]
             [sparkling.conf :as conf]
             [t6.from-scala.core :refer [$] :as $])
@@ -23,8 +23,8 @@
            (spark/spark-context c)))
 
 (defn make-edges [sc]
-  (spark/parallelize sc [(shimmer/edge 1 2 3)
-                         (shimmer/edge 2 1 5)]))
+  (spark/parallelize sc [(glimmering/edge 1 2 3)
+                         (glimmering/edge 2 1 5)]))
 
 (defn make-vertices [sc]
   (spark/parallelize-pairs sc [#sparkling/tuple[1 1]
@@ -33,14 +33,14 @@
 (defn make-graph []
   (let [v (make-vertices)
         e (make-edges)]
-    (shimmer/graph v e)))
+    (glimmering/graph v e)))
 
 (comment (defn generate-graph []
    (let [graph (.logNormalGraph GraphGenerators$/MODULE$ (.sc sc) 5 0 4.0 1.3 -1)]
      (-> graph
-         (shimmer/map-edges (fn [e]
+         (glimmering/map-edges (fn [e]
                               (double (.attr e))))
-         (shimmer/map-vertices (fn [id value]
+         (glimmering/map-vertices (fn [id value]
                                  0.0))))))
 
 #_(if (and (.srcAttr triplet)
@@ -70,12 +70,12 @@
                              (conf/app-name "sparkling-test"))
     (let [graph (.logNormalGraph GraphGenerators$/MODULE$ (.sc sc) 5 0 4.0 1.3 -1)]
       (-> graph
-          (shimmer/map-edges (fn [e]
+          (glimmering/map-edges (fn [e]
                                (double (.attr e))))
-          (shimmer/map-vertices (fn [id value]
+          (glimmering/map-vertices (fn [id value]
                                   (if (= id 42)
                                     0 100)))
-          (shimmer/map-reduce-triplets send-message merge-message)
+          (glimmering/map-reduce-triplets send-message merge-message)
           (.first)))))
 
 (defn test-pregel []
@@ -84,12 +84,12 @@
                              (conf/app-name "sparkling-test"))
     (let [graph (.logNormalGraph GraphGenerators$/MODULE$ (.sc sc) 5 0 4.0 1.3 -1)]
       (-> graph
-          (shimmer/map-edges (fn [e]
+          (glimmering/map-edges (fn [e]
                                (double (.attr e))))
-          (shimmer/map-vertices (fn [id value]
+          (glimmering/map-vertices (fn [id value]
                                   (if (= id 42)
                                     0 100)))
-          (shimmer/pregel 0.0 1 vertex-program send-message merge-message)
+          (glimmering/pregel 0.0 1 vertex-program send-message merge-message)
           (.vertices)
           (spark/save-as-text-file "/tmp/vertices")))))
 
@@ -117,9 +117,9 @@
         init {}
         max 1]
     (-> graph
-        (shimmer/map-reduce-triplets sfn mfn)
-        #_(shimmer/map-vertices (fn [vid attr] vid))
-        #_(shimmer/pregel init max vfn sfn mfn))))
+        (glimmering/map-reduce-triplets sfn mfn)
+        #_(glimmering/map-vertices (fn [vid attr] vid))
+        #_(glimmering/pregel init max vfn sfn mfn))))
 
 (defn test-connected-components [out]
   (spark/with-context sc (-> (conf/spark-conf)
@@ -147,14 +147,14 @@
           max 10
           clique1 (for [u (range n)
                         v (range n)]
-                    (shimmer/edge u v 1))
+                    (glimmering/edge u v 1))
           clique2 (for [u (range n)
                         v (range n)]
-                    (shimmer/edge (+ u n) (+ v n) 1))
-          edges (spark/parallelize sc (concat clique1 clique2 [(shimmer/edge 0 n 1)]))]
-      (-> (shimmer/graph-from-edges edges 1)
-          (shimmer/map-vertices (fn [vid attr] vid)) 
-          (shimmer/pregel-impl init max vfn sfn mfn)
+                    (glimmering/edge (+ u n) (+ v n) 1))
+          edges (spark/parallelize sc (concat clique1 clique2 [(glimmering/edge 0 n 1)]))]
+      (-> (glimmering/graph-from-edges edges 1)
+          (glimmering/map-vertices (fn [vid attr] vid)) 
+          (glimmering/pregel-impl init max vfn sfn mfn)
           (.vertices)
           (spark/save-as-text-file out)))))
 

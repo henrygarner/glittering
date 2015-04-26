@@ -1,6 +1,6 @@
-(ns shimmer.core-test
+(ns glimmering.core-test
   (:require [clojure.test :refer :all]
-            [shimmer.core :refer :all]))
+            [glimmering.core :refer :all]))
 
 (deftest a-test
   (testing "FIXME, I fail."

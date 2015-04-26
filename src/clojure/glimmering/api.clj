@@ -1,4 +1,4 @@
-(ns shimmer.api
+(ns glimmering.api
   (:require [sparkling.scalaInterop :as si]
             [sparkling.function :refer [function2]]
             [t6.from-scala.core :refer ($ $$) :as $])
@@ -6,7 +6,7 @@
            [scala.collection Iterator]
            [scala.reflect ClassTag]
            [scala.Predef$$eq$colon$eq$/MODULE$]
-           [shimmer.scalaInterop ScalaFunction2 ScalaFunction3]))
+           [glimmering.scalaInterop ScalaFunction2 ScalaFunction3]))
 
 (defn edge [from to weight]
   ($ Edge from to weight))
@@ -25,27 +25,27 @@
 
 (defn inner-join [rdd other f]
   (.innerJoin rdd other
-              (new shimmer.scalaInterop.ScalaFunction3 f)
+              (new glimmering.scalaInterop.ScalaFunction3 f)
               si/OBJECT-CLASS-TAG
               si/OBJECT-CLASS-TAG))
 
 (defn outer-join-vertices [graph vertices f]
   (.outerJoinVertices graph vertices
-                      (new shimmer.scalaInterop.ScalaFunction3 f)
+                      (new glimmering.scalaInterop.ScalaFunction3 f)
                       si/OBJECT-CLASS-TAG
                       si/OBJECT-CLASS-TAG
                       nil))
 
 (defn map-vertices [graph f]
   (.mapVertices graph
-                (new shimmer.scalaInterop.ScalaFunction2 f)
+                (new glimmering.scalaInterop.ScalaFunction2 f)
                 ($ ClassTag java.lang.Object)
                 nil))
 
 (defn map-reduce-triplets [graph send merge]
   (.mapReduceTriplets graph
                       (new sparkling.scalaInterop.ScalaFunction1 send)
-                      (new shimmer.scalaInterop.ScalaFunction2 merge)
+                      (new glimmering.scalaInterop.ScalaFunction2 merge)
                       ($/option ($/tuple (.vertices graph)
                                          (EdgeDirection/Out)))
                       si/OBJECT-CLASS-TAG))
@@ -53,7 +53,7 @@
 (defn aggregate-messages [graph send merge]
   (.aggregateMessages graph
                       (new sparkling.scalaInterop.ScalaFunction1 send)
-                      (new shimmer.scalaInterop.ScalaFunction2 merge)
+                      (new glimmering.scalaInterop.ScalaFunction2 merge)
                       (.aggregateMessages$default$3 graph)
                       si/OBJECT-CLASS-TAG))
 
@@ -74,9 +74,9 @@
   (println "PREGEL ##################")
   (let [
         dir (EdgeDirection/Either)
-        v (new shimmer.scalaInterop.ScalaFunction3 vf)
+        v (new glimmering.scalaInterop.ScalaFunction3 vf)
         s (new sparkling.scalaInterop.ScalaFunction1 sf)
-        m (new shimmer.scalaInterop.ScalaFunction2 mf)
+        m (new glimmering.scalaInterop.ScalaFunction2 mf)
         class-tag ($ ClassTag java.lang.Object)]
     (.pregel (.ops graph) init max dir v s m class-tag)))
 

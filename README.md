@@ -10,40 +10,33 @@ A Clojure implementation of Pregel is provided. Here's an example which uses the
 
 ```clojure
 (deftest label-propagation
-  (let [vfn (fn [vid attr message]
-              (if (empty? message)
-                attr
-                (ffirst (sort-by second > message))))
-        sfn (p/message-fn
-             (fn [{:keys [src-attr dst-attr]}]
-               {:src [{dst-attr 1}]
-                :dst [{src-attr 1}]}))
-        mfn (fn [a b]
-              (merge-with + a b))
-        init {}
-        n 5
-        max 10
-        clique1 (for [u (range n)
-                      v (range n)]
-                  (g/edge u v 1))
-        clique2 (for [u (range n)
-                      v (range n)]
-                  (g/edge (+ u n) (+ v n) 1))]
-    (spark/with-context sc (-> (g/conf)
-                               (conf/master "local[*]")
-                               (conf/app-name "pregel-test"))
-      (let [edges (spark/parallelize sc (concat clique1 clique2 [(g/edge 0 n 1)]))
-            labels (->> (g/graph-from-edges edges 1)
-                        (g/map-vertices (fn [vid attr] vid)) 
-                        (p/pregel init max vfn sfn mfn)
-                        (g/vertices)
-                        (spark/collect)
-                        (vec)
-                        (untuple-all)
-                        (group-by second))]
-        (testing
-            "returns two cliques"
-          (is (= 2 (-> labels keys count))))))))
+  (spark/with-context sc (-> (g/conf)
+                             (conf/master "local[*]")
+                             (conf/app-name "label-propagation-test"))
+    (let [vertex-fn (fn [vertex-id attribute message]
+                      (if (empty? message)
+                        attribute
+                        (key (apply max-key val message))))
+          edge-fn (p/message-fn
+                   (fn [{:keys [src-attr dst-attr]}]
+                     {:src {dst-attr 1}
+                      :dst {src-attr 1}}))
+          edges (spark/parallelize sc (two-cliques 5))
+          labels (->> (g/graph-from-edges edges 1)
+                      (g/map-vertices (fn [vid attr] vid))
+                      (p/pregel {:initial-message {}
+                                 :edge-fn edge-fn
+                                 :combiner (partial merge-with +)
+                                 :vertex-fn vertex-fn
+                                 :max-iterations 10})
+                      (g/vertices)
+                      (spark/collect)
+                      (vec)
+                      (untuple-all)
+                      (group-by second))]
+      (testing
+          "returns two cliques"
+        (is (= 2 (-> labels keys count)))))))
 ```
 
 ## License

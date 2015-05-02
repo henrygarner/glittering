@@ -19,33 +19,33 @@
 ;; Label propagation
 
 (deftest label-propagation
-  (let [vfn (fn [vid attr message]
-              (if (empty? message)
-                attr
-                (ffirst (sort-by second > message))))
-        sfn (p/message-fn
-             (fn [{:keys [src-attr dst-attr]}]
-               {:src {dst-attr 1}
-                :dst {src-attr 1}}))
-        mfn (fn [a b]
-              (merge-with + a b))
-        init {}
-        max 10]
-    (spark/with-context sc (-> (g/conf)
-                               (conf/master "local[*]")
-                               (conf/app-name "pregel-test"))
-      (let [edges (spark/parallelize sc (two-cliques 5))
-            labels (->> (g/graph-from-edges edges 1)
-                        (g/map-vertices (fn [vid attr] vid)) 
-                        (p/pregel init max vfn sfn mfn)
-                        (g/vertices)
-                        (spark/collect)
-                        (vec)
-                        (untuple-all)
-                        (group-by second))]
-        (testing
-            "returns two cliques"
-          (is (= 2 (-> labels keys count))))))))
+  (spark/with-context sc (-> (g/conf)
+                             (conf/master "local[*]")
+                             (conf/app-name "label-propagation-test"))
+    (let [vertex-fn (fn [vertex-id attribute message]
+                      (if (empty? message)
+                        attribute
+                        (key (apply max-key val message))))
+          edge-fn (p/message-fn
+                   (fn [{:keys [src-attr dst-attr]}]
+                     {:src {dst-attr 1}
+                      :dst {src-attr 1}}))
+          edges (spark/parallelize sc (two-cliques 5))
+          labels (->> (g/graph-from-edges edges 1)
+                      (g/map-vertices (fn [vid attr] vid))
+                      (p/pregel {:initial-message {}
+                                 :edge-fn edge-fn
+                                 :combiner (partial merge-with +)
+                                 :vertex-fn vertex-fn
+                                 :max-iterations 10})
+                      (g/vertices)
+                      (spark/collect)
+                      (vec)
+                      (untuple-all)
+                      (group-by second))]
+      (testing
+          "returns two cliques"
+        (is (= 2 (-> labels keys count)))))))
 
 ;; Semi-clustering
 
@@ -107,23 +107,21 @@
    :edges (concat (:edges a) (:edges b))})
 
 (deftest semi-clustering
-  (let [initial-message {}
-        max-iterations 10]
-    (spark/with-context sc (-> (g/conf)
-                               (conf/master "local[*]")
-                               (conf/app-name "semi-clustering-test"))
-      (let [edges (spark/parallelize sc (two-cliques 5))
-            labels (->> (g/graph-from-edges edges 1.0)
-                        (p/pregel initial-message
-                                  max-iterations
-                                  sc-vertex-fn
-                                  sc-message-fn
-                                  sc-merge-fn)
-                        (g/vertices)
-                        (spark/collect)
-                        (vec)
-                        (untuple-all)
-                        (group-by second))]
-        (testing
-            "returns two cliques"
-          (is (= 2 (-> labels keys count))))))))
+  (spark/with-context sc (-> (g/conf)
+                             (conf/master "local[*]")
+                             (conf/app-name "semi-clustering-test"))
+    (let [edges (spark/parallelize sc (two-cliques 5))
+          labels (->> (g/graph-from-edges edges 1.0)
+                      (p/pregel {:initial-message {}
+                                 :edge-fn sc-message-fn
+                                 :combiner sc-merge-fn
+                                 :vertex-fn sc-vertex-fn
+                                 :max-iterations 10})
+                      (g/vertices)
+                      (spark/collect)
+                      (vec)
+                      (untuple-all)
+                      (group-by second))]
+      (testing
+          "returns two cliques"
+        (is (= 2 (-> labels keys count)))))))

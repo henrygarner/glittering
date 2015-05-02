@@ -1,4 +1,4 @@
-package glimmering.scalaInterop;
+package glinting.scalaInterop;
 
 import clojure.lang.IFn;
 import sparkling.serialization.Utils;

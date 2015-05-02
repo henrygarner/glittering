@@ -1,20 +1,20 @@
-(ns glimmering.core
+(ns glinting.core
   (:require [sparkling.scalaInterop :as si]
             [sparkling.conf :as conf]
             [t6.from-scala.core :refer [$]])
-  (:import [glimmering.scalaInterop ScalaFunction2 ScalaFunction3]
+  (:import [glinting.scalaInterop ScalaFunction2 ScalaFunction3]
            [sparkling.scalaInterop ScalaFunction1]
            [scala.reflect ClassTag]
            [org.apache.spark.graphx Pregel Edge Graph$]
            [org.apache.spark SparkConf]))
 
-(defn set-glimmering-registrator [conf]
-  (conf/set conf "spark.kryo.registrator" "glimmering.serialization.Registrator"))
+(defn set-glinting-registrator [conf]
+  (conf/set conf "spark.kryo.registrator" "glinting.serialization.Registrator"))
 
 (defn conf []
   (-> (SparkConf.)
       (conf/set "spark.serializer" "org.apache.spark.serializer.KryoSerializer")
-      (set-glimmering-registrator))) 
+      (set-glinting-registrator))) 
 
 (defn edge [from to weight]
   ($ Edge from to weight))

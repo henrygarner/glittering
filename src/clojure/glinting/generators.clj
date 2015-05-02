@@ -1,4 +1,4 @@
-(ns glimmering.generators
+(ns glinting.generators
   (:import [org.apache.spark.graphx.util GraphGenerators$]))
 
 (defn log-normal [conf vertices-count {:keys [partitions-count mu sigma seed]

@@ -1,6 +1,6 @@
-(ns glimmering.serialization
+(ns glinting.serialization
   (:require [sparkling.serialization :as registrator]
-            [glimmering.core :as g])
+            [glinting.core :as g])
   (:import [org.apache.spark.serializer KryoRegistrator]
            [com.esotericsoftware.kryo Kryo Serializer]
            [org.objenesis.strategy StdInstantiatorStrategy]

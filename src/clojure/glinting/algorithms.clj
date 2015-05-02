@@ -1,4 +1,4 @@
-(ns glimmering.algorithms)
+(ns glinting.algorithms)
 
 (defn page-rank [tol reset-prob graph]
   (.pageRank (.ops graph) tol reset-prob))

@@ -1,5 +1,5 @@
-(ns glimmering.pregel
-  (:require  [glimmering.core :as g]
+(ns glinting.pregel
+  (:require  [glinting.core :as g]
              [t6.from-scala.core :refer [$] :as $])
   (:import [org.apache.spark.graphx EdgeDirection]))
 
@@ -11,10 +11,10 @@
                     :dst-attr (.dstAttr ctx)
                     :attr (.attr ctx)}
           outgoing (f incoming)]
-      (doseq [message (:src outgoing)]
-        (.sendToSrc ctx message))
-      (doseq [message (:dst outgoing)]
-        (.sendToDst ctx message)))))
+      (doseq [[dest message] outgoing]
+        (case dest
+          :src (.sendToSrc ctx message)
+          :dst (.sendToDst ctx message))))))
 
 (defn pregel [init max-iterations vf sf mf graph]
   (let [dir (EdgeDirection/Either)

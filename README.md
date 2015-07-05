@@ -4,7 +4,7 @@ A Clojure wrapper around GraphX, Spark's graph processing library.
 
 ## Usage
 
-Functions in `glinting.core` are designed to be used with Clojure's double-threading macro.
+Functions in `glittering.core` are designed to be used with Clojure's double-threading macro.
 
 A Clojure implementation of Pregel is provided. Here's an example which uses the interface for label propagation from the tests.
 

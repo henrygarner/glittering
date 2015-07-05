@@ -1,4 +1,4 @@
-(ns glinting.test-utils
+(ns glittering.test-utils
   (:import [scala Tuple2]))
 
 (defn untuple [^Tuple2 t]

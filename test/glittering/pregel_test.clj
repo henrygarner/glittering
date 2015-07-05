@@ -1,8 +1,8 @@
-(ns glinting.pregel-test
-  (:require [glinting.pregel :as p]
-            [glinting.core :as g]
-            [glinting.generators :as gen]
-            [glinting.test-utils :refer [untuple-all]]
+(ns glittering.pregel-test
+  (:require [glittering.pregel :as p]
+            [glittering.core :as g]
+            [glittering.generators :as gen]
+            [glittering.test-utils :refer [untuple-all]]
             [sparkling.conf :as conf]
             [sparkling.core :as spark]
             [clojure.test :refer :all]))

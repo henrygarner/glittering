@@ -4,6 +4,14 @@ A Clojure wrapper around GraphX, Spark's graph processing library.
 
 ## Usage
 
+Available from clojars:
+
+```clojure
+   [glittering "0.1.0"]
+```
+
+See the [Clojure Data Science chapter on Graphs](https://github.com/clojuredatascience/ch8-graphs/blob/master/src/cljds/ch8/examples.clj) for usage examples.
+
 Functions in `glittering.core` are designed to be used with Clojure's double-threading macro.
 
 A Clojure implementation of Pregel is provided. Here's an example which uses the interface for label propagation from the tests.

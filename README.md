@@ -1,4 +1,4 @@
-# Glinting
+# Glittering
 
 A Clojure wrapper around GraphX, Spark's graph processing library.
 

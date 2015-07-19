@@ -11,13 +11,12 @@
                     max-iterations Long/MAX_VALUE}}
               g]
   (let [dir (g/edge-directions direction)
-        wrapped-message-fn (g-de/message-fn message-fn)
         g (if initial-message
             (g/map-vertices
              (fn [vid attr] (vertex-fn vid attr initial-message)) g)
             g)]
     (loop [g g
-           messages (g/aggregate-messages wrapped-message-fn combiner g)
+           messages (g/aggregate-messages message-fn combiner g)
            i 0]
       (if (and (> (.count messages) 0)
                (< i max-iterations))
@@ -27,7 +26,7 @@
                                                  (or new-opt old))
                                                new-verts g))
               old-messages messages
-              messages (.cache (g/aggregate-messages wrapped-message-fn combiner g))]
+              messages (.cache (g/aggregate-messages message-fn combiner g))]
           #_(println "Pregel iteration: " i "messages count: " (.count messages))
           (.count messages) ;; We must realise the messages
           (.unpersist old-messages false)

@@ -3,9 +3,11 @@
   (:require [glittering.utils :refer :all]
             [sparkling.conf :as conf]
             [sparkling.scalaInterop :as si]
+            [glittering.destructuring :as g-de]
             [t6.from-scala.core :refer [$]])
   (:import [glittering.scalaInterop ScalaFunction2 ScalaFunction3]
            [org.apache.spark SparkConf]
+           [org.apache.spark.api.java JavaRDDLike]
            [org.apache.spark.graphx Pregel Edge Graph Graph$ EdgeDirection GraphOps PartitionStrategy$]
            [org.apache.spark.storage StorageLevel]
            [scala.reflect ClassTag]
@@ -47,7 +49,9 @@
 (defn graph-from-edges
   "Create a graph from an RDD of edges and a default node attribute."
   [edges default]
-  (.fromEdges Graph$/MODULE$ edges default
+  (.fromEdges Graph$/MODULE$
+              (if (instance? JavaRDDLike edges) (.rdd edges) edges)
+              default
               (.fromEdges$default$3 Graph$/MODULE$)
               (.fromEdges$default$4 Graph$/MODULE$)
               si/OBJECT-CLASS-TAG
@@ -102,18 +106,22 @@
               si/OBJECT-CLASS-TAG
               si/OBJECT-CLASS-TAG))
 
+
 (defn outer-join-vertices [f vertices graph]
-  (.outerJoinVertices graph vertices
-                      (new ScalaFunction3
-                           (fn [a b c]
-                             (f a b (or-nil c))))
-                      si/OBJECT-CLASS-TAG
-                      si/OBJECT-CLASS-TAG
-                      nil))
+  (let [rdd (if (instance? JavaRDDLike vertices)
+              (.rdd vertices) vertices)]
+    (.outerJoinVertices graph
+                        rdd
+                        (new ScalaFunction3
+                             (fn [a b c]
+                               (f a b (or-nil c))))
+                        si/OBJECT-CLASS-TAG
+                        si/OBJECT-CLASS-TAG
+                        nil)))
 
 (defn aggregate-messages [send merge graph]
   (.aggregateMessages graph
-                      (new ScalaFunction1 send)
+                      (new ScalaFunction1 (g-de/message-fn send))
                       (new ScalaFunction2 merge)
                       (.aggregateMessages$default$3 graph)
                       si/OBJECT-CLASS-TAG))

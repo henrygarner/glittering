@@ -142,4 +142,4 @@
 (defn subgraph [epred vpred graph]
   (.subgraph graph
              (new ScalaFunction1 epred)
-             (new ScalaFunction1 vpred)))
+             (new ScalaFunction2 vpred)))

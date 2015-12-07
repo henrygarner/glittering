@@ -1,5 +1,6 @@
 (ns glittering.pregel-test
   (:require [glittering.pregel :as p]
+            [glittering.destructuring :as d]
             [glittering.core :as g]
             [glittering.generators :as gen]
             [glittering.test-utils :refer [untuple-all]]
@@ -26,15 +27,14 @@
                       (if (empty? message)
                         attribute
                         (key (apply max-key val message))))
-          edge-fn (p/message-fn
-                   (fn [{:keys [src-attr dst-attr]}]
-                     {:src {dst-attr 1}
-                      :dst {src-attr 1}}))
+          edge-fn (fn [{:keys [src-attr dst-attr]}]
+                    {:src {dst-attr 1}
+                     :dst {src-attr 1}})
           edges (spark/parallelize sc (two-cliques 5))
           labels (->> (g/graph-from-edges edges 1)
                       (g/map-vertices (fn [vid attr] vid))
                       (p/pregel {:initial-message {}
-                                 :edge-fn edge-fn
+                                 :message-fn edge-fn
                                  :combiner (partial merge-with +)
                                  :vertex-fn vertex-fn
                                  :max-iterations 10})
@@ -97,10 +97,9 @@
 
 (def sc-message-fn
   ;; Caclculate boundary and internal weights
-  (p/message-fn
-   (fn [{:keys [src-id src-attr dst-id dst-attr attr]}]
-     [[:dst {:clusters src-attr
-             :edges [[src-id attr]]}]])))
+  (fn [{:keys [src-id src-attr dst-id dst-attr attr]}]
+    [[:dst {:clusters src-attr
+            :edges [[src-id attr]]}]]))
 
 (defn sc-merge-fn [a b]
   {:clusters (clojure.set/union (:clusters a) (:clusters b))
@@ -113,7 +112,7 @@
     (let [edges (spark/parallelize sc (two-cliques 5))
           labels (->> (g/graph-from-edges edges 1.0)
                       (p/pregel {:initial-message {}
-                                 :edge-fn sc-message-fn
+                                 :message-fn sc-message-fn
                                  :combiner sc-merge-fn
                                  :vertex-fn sc-vertex-fn
                                  :max-iterations 10})

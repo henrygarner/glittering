@@ -1,6 +1,5 @@
 (ns glittering.pregel
   (:require  [glittering.core :as g]
-             [glittering.destructuring :as g-de]
              [t6.from-scala.core :refer [$] :as $])
   (:import [org.apache.spark.graphx EdgeDirection]))
 

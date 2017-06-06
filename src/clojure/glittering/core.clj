@@ -41,7 +41,7 @@
   "Create a graph from RDDs containing vertices and edges,"
   [vertices edges]
   ($ Graph (.rdd vertices) (.rdd edges)
-     (.apply$default$3 Graph$/MODULE$) 
+     (.apply$default$3 Graph$/MODULE$)
      (.apply$default$4 Graph$/MODULE$)
      (.apply$default$5 Graph$/MODULE$)
      si/OBJECT-CLASS-TAG
@@ -63,7 +63,7 @@
 
 (defn edge
   ([from to]
-   ($ Edge from to nil)) 
+   ($ Edge from to nil))
   ([from to attribute]
    ($ Edge from to attribute)))
 

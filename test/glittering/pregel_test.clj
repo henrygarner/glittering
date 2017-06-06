@@ -19,20 +19,28 @@
 
 ;; Label propagation
 
+(defn vertex-fn
+  [vertex-id attribute message]
+  (if (empty? message)
+    attribute
+    (key (apply max-key val message))))
+
+(defn edge-fn
+  [{:keys [src-attr dst-attr]}]
+  {:src {dst-attr 1}
+   :dst {src-attr 1}})
+
+(defn ->vertex-id
+  [vid attr]
+  vid)
+
 (deftest label-propagation
   (spark/with-context sc (-> (g/conf)
                              (conf/master "local[*]")
                              (conf/app-name "label-propagation-test"))
-    (let [vertex-fn (fn [vertex-id attribute message]
-                      (if (empty? message)
-                        attribute
-                        (key (apply max-key val message))))
-          edge-fn (fn [{:keys [src-attr dst-attr]}]
-                    {:src {dst-attr 1}
-                     :dst {src-attr 1}})
-          edges (spark/parallelize sc (two-cliques 5))
+    (let [edges (spark/parallelize sc (two-cliques 5))
           labels (->> (g/graph-from-edges edges 1)
-                      (g/map-vertices (fn [vid attr] vid))
+                      (g/map-vertices ->vertex-id)
                       (p/pregel {:initial-message {}
                                  :message-fn edge-fn
                                  :combiner (partial merge-with +)

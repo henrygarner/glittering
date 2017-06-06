@@ -9,6 +9,7 @@
            [org.apache.spark SparkConf]
            [org.apache.spark.api.java JavaRDDLike]
            [org.apache.spark.graphx Pregel Edge Graph Graph$ EdgeDirection GraphOps PartitionStrategy$]
+           [org.apache.spark.graphx.lib ConnectedComponents]
            [org.apache.spark.storage StorageLevel]
            [scala.reflect ClassTag]
            [sparkling.scalaInterop ScalaFunction1]))
@@ -143,3 +144,6 @@
   (.subgraph graph
              (new ScalaFunction1 epred)
              (new ScalaFunction2 vpred)))
+
+(defn connected-components [graph]
+  (ConnectedComponents/run graph si/OBJECT-CLASS-TAG si/OBJECT-CLASS-TAG))

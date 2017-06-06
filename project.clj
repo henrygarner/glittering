@@ -3,7 +3,7 @@
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.6.0"]
+  :dependencies [[org.clojure/clojure "1.7.0"]
                  [gorillalabs/sparkling "1.2.3"]
                  [t6/from-scala "0.2.1"]]
   :source-paths ["src/clojure"]
@@ -21,4 +21,8 @@
                           glittering.test-utils]}
              :dev {:resource-paths ["data"]
                    :aot [glittering.core
-                         glittering.pregel]}})
+                         glittering.pregel
+                         glittering.destructuring
+                         glittering.pregel-test
+                         glittering.test-utils
+                         ]}})

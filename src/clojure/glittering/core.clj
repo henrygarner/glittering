@@ -107,6 +107,11 @@
               si/OBJECT-CLASS-TAG
               si/OBJECT-CLASS-TAG))
 
+(defn left-join [f other rdd]
+  (.leftJoin rdd other
+             (new ScalaFunction3 f)
+              si/OBJECT-CLASS-TAG
+              si/OBJECT-CLASS-TAG))
 
 (defn outer-join-vertices [f vertices graph]
   (let [rdd (if (instance? JavaRDDLike vertices)

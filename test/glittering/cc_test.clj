@@ -47,9 +47,13 @@
           components (->> (g/graph vertices edges)
                           (g/connected-components)
                           (g/vertices)
+                          (g/left-join (fn [id left right]
+                                         {:cluster-id left
+                                          :data (.x right)})
+                                       (.rdd vertices))
                           (spark/collect)
                           (vec)
                           (untuple-all)
-                          (group-by second)
-                          )]
-      (prn components))))
+                          (group-by (fn [[k {:keys [cluster-id]}]]
+                                      cluster-id)))]
+      components)))

@@ -5,22 +5,24 @@
             [glittering.test-utils :refer [untuple-all]]
             [sparkling.conf :as conf]
             [sparkling.core :as spark]
+            [sparkling.destructuring :as s-de]
             [clojure.test :refer :all]))
 
-(defn simple-bipartite [n]
-  (let [part1 (for [u (range n)]
-                (g/edge u (+ u n) 1))]
-    (prn part1)
-    part1))
+(def table-a
+  [{:amp-id "5fa91050-8a56-4285-8514-2cab0f95f4d3" :members [1 2 3]}
+   {:amp-id "eb0e2e5a-750a-40f7-b0de-8d7e90e82ffb" :members [4 5]}
+   {:amp-id "95a4df24-e200-42ca-bafc-f99bd4b22b34" :members [13 14]}])
 
-(defn two-cliques [n]
-  (let [clique1 (for [u (range n)
-                      v (range n)]
-                  (g/edge u v 1))
-        clique2 (for [u (range n)
-                      v (range n)]
-                  (g/edge (+ u n) (+ v n) 1))]
-    (concat clique1 clique2 [(g/edge 0 n 1)])))
+(def table-b
+  [{:amp-id "c566be3f-cfca-4b60-a4cf-4b00eaeee722" :members [6 7 8]}
+   {:amp-id "3686d0d5-06f8-4977-90ad-dc718fcd3f73" :members [9 10]}
+   {:amp-id "707477b7-6c2a-42c7-87ee-c96d38342189" :members [11 12]}])
+
+(def matching-table
+  [{:lhs "5fa91050-8a56-4285-8514-2cab0f95f4d3"
+    :rhs "3686d0d5-06f8-4977-90ad-dc718fcd3f73"}
+   {:lhs "eb0e2e5a-750a-40f7-b0de-8d7e90e82ffb"
+    :rhs "c566be3f-cfca-4b60-a4cf-4b00eaeee722"}])
 
 (defn connected-component
   []

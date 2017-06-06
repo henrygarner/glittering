@@ -24,6 +24,18 @@
    {:lhs "eb0e2e5a-750a-40f7-b0de-8d7e90e82ffb"
     :rhs "c566be3f-cfca-4b60-a4cf-4b00eaeee722"}])
 
+(defn uuid->long
+  [id-str]
+  (.getLeastSignificantBits (java.util.UUID/fromString id-str)))
+
+(defn tuplate-table
+  [rows]
+  (map (fn [row] (spark/tuple (uuid->long (:amp-id row)) row)) rows))
+
+(defn matching->edges
+  [rows]
+  (map (fn [row] (g/edge (uuid->long (:lhs row)) (uuid->long (:rhs row)) nil)) rows))
+
 (defn connected-component
   []
   (spark/with-context sc (-> (g/conf)

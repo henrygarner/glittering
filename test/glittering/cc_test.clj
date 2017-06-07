@@ -6,7 +6,10 @@
             [sparkling.conf :as conf]
             [sparkling.core :as spark]
             [sparkling.destructuring :as s-de]
-            [clojure.test :refer :all]))
+            [sparkling.scalaInterop :as si]
+            [clojure.test :refer :all])
+  (:import [scala.collection JavaConverters JavaConversions]))
+
 
 (def table-a
   [{:amp-id "5fa91050-8a56-4285-8514-2cab0f95f4d3" :members [1 2 3]}
@@ -51,14 +54,21 @@
                                          {:cluster-id left
                                           :data (.x right)})
                                        (.rdd vertices))
+                          (g/group-by (fn [row]
+                                        (:cluster-id (s-de/second row))))
+
+                          (g/map
+                           (fn [kv]
+                             (spark/tuple
+                              (s-de/first kv)
+                              (map (fn [kv'] (:data (s-de/second kv')))
+                                   (-> kv
+                                       s-de/second
+                                       .toIterator
+                                       JavaConverters/asJavaIteratorConverter
+                                       .asJava
+                                       iterator-seq)))))
                           (spark/collect)
                           (vec)
-                          (untuple-all)
-                          ;; should be a combine by key
-                          (group-by (fn [[k {:keys [cluster-id]}]]
-                                      cluster-id))
-                          (map (fn [[k v]]
-                                 [k (map (fn [[_ {:keys [data]}]]
-                                           data)
-                                         v)])))]
+                          (untuple-all))]
       components)))

@@ -54,6 +54,11 @@
                           (spark/collect)
                           (vec)
                           (untuple-all)
+                          ;; should be a combine by key
                           (group-by (fn [[k {:keys [cluster-id]}]]
-                                      cluster-id)))]
+                                      cluster-id))
+                          (map (fn [[k v]]
+                                 [k (map (fn [[_ {:keys [data]}]]
+                                           data)
+                                         v)])))]
       components)))

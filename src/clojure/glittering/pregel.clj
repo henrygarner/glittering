@@ -1,6 +1,6 @@
 (ns glittering.pregel
-  (:require  [glittering.core :as g]
-             [t6.from-scala.core :refer [$] :as $])
+  (:require
+    [glittering.core :as g])
   (:import [org.apache.spark.graphx EdgeDirection]))
 
 (defn pregel [{:keys [initial-message max-iterations

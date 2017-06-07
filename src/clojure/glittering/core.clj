@@ -3,12 +3,11 @@
   (:require [glittering.utils :refer :all]
             [sparkling.conf :as conf]
             [sparkling.scalaInterop :as si]
-            [glittering.destructuring :as g-de]
-            [t6.from-scala.core :refer [$]])
+            [glittering.destructuring :as g-de])
   (:import [glittering.scalaInterop ScalaFunction2 ScalaFunction3]
            [org.apache.spark SparkConf]
            [org.apache.spark.api.java JavaRDDLike]
-           [org.apache.spark.graphx Pregel Edge Graph Graph$ EdgeDirection GraphOps PartitionStrategy$]
+           [org.apache.spark.graphx Pregel Edge Edge$ Graph Graph$ EdgeDirection GraphOps PartitionStrategy$]
            [org.apache.spark.graphx.lib ConnectedComponents]
            [org.apache.spark.storage StorageLevel]
            [scala.reflect ClassTag]
@@ -40,12 +39,13 @@
 (defn graph
   "Create a graph from RDDs containing vertices and edges,"
   [vertices edges]
-  ($ Graph (.rdd vertices) (.rdd edges)
-     (.apply$default$3 Graph$/MODULE$)
-     (.apply$default$4 Graph$/MODULE$)
-     (.apply$default$5 Graph$/MODULE$)
-     si/OBJECT-CLASS-TAG
-     si/OBJECT-CLASS-TAG))
+  (.apply Graph$/MODULE$
+   (.rdd vertices) (.rdd edges)
+   (.apply$default$3 Graph$/MODULE$)
+   (.apply$default$4 Graph$/MODULE$)
+   (.apply$default$5 Graph$/MODULE$)
+   si/OBJECT-CLASS-TAG
+   si/OBJECT-CLASS-TAG))
 
 (defn graph-from-edges
   "Create a graph from an RDD of edges and a default node attribute."
@@ -63,9 +63,9 @@
 
 (defn edge
   ([from to]
-   ($ Edge from to nil))
+   (.apply Edge$/MODULE$ from to nil))
   ([from to attribute]
-   ($ Edge from to attribute)))
+   (.apply Edge$/MODULE$ from to attribute)))
 
 (defn src-attr [edge]
   (.srcAttr edge))

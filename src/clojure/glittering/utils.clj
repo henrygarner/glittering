@@ -1,5 +1,5 @@
 (ns glittering.utils
-  (:require [t6.from-scala.core :as $ :refer [$]]))
+  (:import [sparkling.scalaInterop ScalaFunction0]))
 
 (defn or-nil [x]
-  ($ x getOrElse ($/fn [] nil)))
+  (.getOrElse x (ScalaFunction0. (fn [] nil))))

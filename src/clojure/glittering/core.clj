@@ -107,8 +107,8 @@
               si/OBJECT-CLASS-TAG
               si/OBJECT-CLASS-TAG))
 
-(defn left-join [f other rdd]
-  (.leftJoin rdd other
+(defn left-join [f other vertex-rdd]
+  (.leftJoin vertex-rdd other
              (new ScalaFunction3 f)
               si/OBJECT-CLASS-TAG
               si/OBJECT-CLASS-TAG))
@@ -152,3 +152,11 @@
 
 (defn connected-components [graph]
   (ConnectedComponents/run graph si/OBJECT-CLASS-TAG si/OBJECT-CLASS-TAG))
+
+(defn group-by [f vertex-rdd]
+  (.groupBy vertex-rdd (new ScalaFunction1 f)
+            si/OBJECT-CLASS-TAG))
+
+(defn map [f rdd]
+  (.map rdd (new ScalaFunction1 f)
+        si/OBJECT-CLASS-TAG))

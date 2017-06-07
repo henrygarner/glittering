@@ -8,10 +8,10 @@
   :source-paths ["src/clojure"]
   :java-source-paths ["src/java"]
   :aot [#".*" glittering.serialization sparkling.destructuring]
-  :profiles {:default [:base :system :user :provided :spark-1.4.0 :dev]
-             :spark-1.4.0 ^{:pom-scope :provided}
-             {:dependencies [[org.apache.spark/spark-core_2.10 "1.4.0"]
-                             [org.apache.spark/spark-graphx_2.10 "1.4.0"]]}
+  :profiles {:default [:base :system :user :provided :spark-1.6.1 :dev]
+             :spark-1.6.1 ^{:pom-scope :provided}
+             {:dependencies [[org.apache.spark/spark-core_2.10 "1.6.1"]
+                             [org.apache.spark/spark-graphx_2.10 "1.6.1"]]}
              :test {:resource-paths ["dev-resources"]
                     :aot [glittering.core
                           glittering.pregel

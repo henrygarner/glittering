@@ -6,6 +6,7 @@
             [glittering.test-utils :refer [untuple-all]]
             [sparkling.conf :as conf]
             [sparkling.core :as spark]
+            [clojure.set :as set]
             [clojure.test :refer :all]))
 
 (defn two-cliques [n]
@@ -110,7 +111,7 @@
             :edges [[src-id attr]]}]]))
 
 (defn sc-merge-fn [a b]
-  {:clusters (clojure.set/union (:clusters a) (:clusters b))
+  {:clusters (set/union (:clusters a) (:clusters b))
    :edges (concat (:edges a) (:edges b))})
 
 (deftest semi-clustering

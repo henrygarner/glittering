@@ -3,12 +3,12 @@
   (:require [glittering.utils :refer :all]
             [sparkling.conf :as conf]
             [sparkling.scalaInterop :as si]
-            [glittering.destructuring :as g-de]
-            [t6.from-scala.core :refer [$]])
+            [glittering.destructuring :as g-de])
   (:import [glittering.scalaInterop ScalaFunction2 ScalaFunction3]
            [org.apache.spark SparkConf]
            [org.apache.spark.api.java JavaRDDLike]
-           [org.apache.spark.graphx Pregel Edge Graph Graph$ EdgeDirection GraphOps PartitionStrategy$]
+           [org.apache.spark.graphx Pregel Edge Edge$ Graph Graph$ EdgeDirection GraphOps PartitionStrategy$]
+           [org.apache.spark.graphx.lib ConnectedComponents]
            [org.apache.spark.storage StorageLevel]
            [scala.reflect ClassTag]
            [sparkling.scalaInterop ScalaFunction1]))
@@ -39,12 +39,13 @@
 (defn graph
   "Create a graph from RDDs containing vertices and edges,"
   [vertices edges]
-  ($ Graph (.rdd vertices) (.rdd edges)
-     (.apply$default$3 Graph$/MODULE$) 
-     (.apply$default$4 Graph$/MODULE$)
-     (.apply$default$5 Graph$/MODULE$)
-     si/OBJECT-CLASS-TAG
-     si/OBJECT-CLASS-TAG))
+  (.apply Graph$/MODULE$
+   (.rdd vertices) (.rdd edges)
+   (.apply$default$3 Graph$/MODULE$)
+   (.apply$default$4 Graph$/MODULE$)
+   (.apply$default$5 Graph$/MODULE$)
+   si/OBJECT-CLASS-TAG
+   si/OBJECT-CLASS-TAG))
 
 (defn graph-from-edges
   "Create a graph from an RDD of edges and a default node attribute."
@@ -62,9 +63,9 @@
 
 (defn edge
   ([from to]
-   ($ Edge from to nil)) 
+   (.apply Edge$/MODULE$ from to nil))
   ([from to attribute]
-   ($ Edge from to attribute)))
+   (.apply Edge$/MODULE$ from to attribute)))
 
 (defn src-attr [edge]
   (.srcAttr edge))
@@ -106,6 +107,11 @@
               si/OBJECT-CLASS-TAG
               si/OBJECT-CLASS-TAG))
 
+(defn left-join [f other vertex-rdd]
+  (.leftJoin vertex-rdd other
+             (new ScalaFunction3 f)
+              si/OBJECT-CLASS-TAG
+              si/OBJECT-CLASS-TAG))
 
 (defn outer-join-vertices [f vertices graph]
   (let [rdd (if (instance? JavaRDDLike vertices)
@@ -143,3 +149,14 @@
   (.subgraph graph
              (new ScalaFunction1 epred)
              (new ScalaFunction2 vpred)))
+
+(defn connected-components [graph]
+  (ConnectedComponents/run graph si/OBJECT-CLASS-TAG si/OBJECT-CLASS-TAG))
+
+(defn group-by [f vertex-rdd]
+  (.groupBy vertex-rdd (new ScalaFunction1 f)
+            si/OBJECT-CLASS-TAG))
+
+(defn map [f rdd]
+  (.map rdd (new ScalaFunction1 f)
+        si/OBJECT-CLASS-TAG))
